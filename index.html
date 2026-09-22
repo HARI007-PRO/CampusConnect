@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CampusConnect — College Event Discovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:   #0A0F1E;
+  --navy2:  #0F1629;
+  --navy3:  #151D38;
+  --card:   #111827;
+  --border: rgba(255,255,255,0.07);
+  --orange: #FF6B2B;
+  --orange2:#FF8C55;
+  --teal:   #00D4AA;
+  --purple: #7C5CEF;
+  --pink:   #F0507A;
+  --yellow: #FFD166;
+  --text:   #F0F2F8;
+  --muted:  #8892A4;
+  --light:  #CBD5E1;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: .6;
+}
+
+/* ─── NAVBAR ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%;
+  height: 68px;
+  background: rgba(10,15,30,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  color: var(--text);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-dot { width: 10px; height: 10px; background: var(--orange); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.7} }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  padding: 9px 22px; background: var(--orange); color: #fff;
+  border-radius: 8px; font-weight: 600; font-size: .9rem;
+  text-decoration: none; transition: background .2s, transform .15s;
+}
+.nav-cta:hover { background: var(--orange2); transform: translateY(-1px); }
+.nav-tag { font-size: .7rem; background: rgba(255,107,43,.15); color: var(--orange); border: 1px solid rgba(255,107,43,.3); padding: 2px 8px; border-radius: 20px; font-weight: 600; letter-spacing: .04em; }
+
+/* ─── HERO ─── */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 100px 5% 80px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,107,43,.18) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -60%);
+  pointer-events: none;
+}
+.hero-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(124,92,239,.14) 0%, transparent 70%);
+  bottom: 0; right: 5%;
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,107,43,.1); border: 1px solid rgba(255,107,43,.25);
+  padding: 7px 18px; border-radius: 30px;
+  font-size: .82rem; font-weight: 600; color: var(--orange);
+  margin-bottom: 28px; letter-spacing: .04em;
+  animation: fadeUp .6s ease both;
+}
+.hero-badge svg { width: 14px; height: 14px; }
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 800; line-height: 1.1;
+  letter-spacing: -.02em;
+  animation: fadeUp .7s .1s ease both;
+}
+h1 span { color: var(--orange); }
+h1 em { color: var(--teal); font-style: normal; }
+.hero-sub {
+  max-width: 560px; margin: 20px auto 0;
+  color: var(--muted); font-size: 1.05rem; line-height: 1.7;
+  animation: fadeUp .7s .2s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+/* ─── SEARCH BOX ─── */
+.search-card {
+  margin: 38px auto 0;
+  width: 100%; max-width: 760px;
+  background: var(--navy3);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+  animation: fadeUp .7s .35s ease both;
+}
+.search-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 12px; align-items: end;
+}
+.field-label {
+  font-size: .72rem; font-weight: 600; color: var(--muted);
+  letter-spacing: .08em; text-transform: uppercase; margin-bottom: 7px;
+}
+.search-input {
+  width: 100%; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; padding: 11px 14px;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: .95rem; transition: border-color .2s, box-shadow .2s;
+}
+.search-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,107,43,.15); }
+.search-input::placeholder { color: var(--muted); }
+.search-btn {
+  padding: 11px 26px; background: var(--orange); color: #fff;
+  border: none; border-radius: 10px; font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 1rem; cursor: pointer;
+  transition: background .2s, transform .15s; white-space: nowrap;
+}
+.search-btn:hover { background: var(--orange2); transform: translateY(-1px); }
+.search-tags {
+  margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.search-tags span { font-size: .78rem; color: var(--muted); }
+.tag-chip {
+  font-size: .78rem; padding: 4px 12px;
+  border: 1px solid var(--border); border-radius: 20px;
+  color: var(--light); cursor: pointer; transition: all .2s;
+  background: rgba(255,255,255,.03);
+}
+.tag-chip:hover { border-color: var(--orange); color: var(--orange); background: rgba(255,107,43,.08); }
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  display: flex; justify-content: center; gap: 0;
+  margin: 60px auto 0; max-width: 700px;
+  border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; background: var(--navy3);
+  animation: fadeUp .7s .5s ease both;
+}
+.stat {
+  flex: 1; padding: 22px 16px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Syne', sans-serif; font-size: 1.9rem;
+  font-weight: 800; color: var(--orange);
+}
+.stat-label { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+
+/* ─── SECTION ─── */
+section { padding: 90px 5%; }
+.section-header { text-align: center; margin-bottom: 54px; }
+.section-eyebrow {
+  font-size: .75rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--orange); margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  font-weight: 800; line-height: 1.15; letter-spacing: -.02em;
+}
+.section-sub { color: var(--muted); margin-top: 14px; font-size: 1rem; }
+
+/* ─── FILTER BAR ─── */
+.filter-bar {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 36px;
+  align-items: center;
+}
+.filter-chip {
+  padding: 8px 18px; border-radius: 30px; font-size: .85rem; font-weight: 500;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif;
+}
+.filter-chip:hover, .filter-chip.active {
+  background: var(--orange); color: #fff; border-color: var(--orange);
+}
+.filter-chip.cat-tech.active { background: var(--purple); border-color: var(--purple); }
+.filter-chip.cat-cultural.active { background: var(--pink); border-color: var(--pink); }
+.filter-chip.cat-sports.active { background: var(--teal); border-color: var(--teal); color: var(--navy); }
+.filter-chip.cat-business.active { background: var(--yellow); border-color: var(--yellow); color: var(--navy); }
+.filter-right { margin-left: auto; display: flex; gap: 10px; }
+.sort-select {
+  padding: 8px 14px; border-radius: 8px; font-size: .85rem;
+  background: var(--navy3); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Sans', sans-serif; cursor: pointer;
+}
+
+/* ─── EVENT GRID ─── */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+}
+.event-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+}
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 48px rgba(0,0,0,.5);
+  border-color: rgba(255,107,43,.3);
+}
+.event-banner {
+  height: 140px; position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.event-banner-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+}
+.event-banner-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,15,30,.9) 0%, transparent 60%);
+}
+.event-category-badge {
+  position: absolute; top: 12px; left: 12px;
+  font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+}
+.badge-tech     { background: rgba(124,92,239,.85); color: #fff; }
+.badge-cultural { background: rgba(240,80,122,.85); color: #fff; }
+.badge-sports   { background: rgba(0,212,170,.85);  color: var(--navy); }
+.badge-business { background: rgba(255,209,102,.85); color: var(--navy); }
+.badge-workshop { background: rgba(255,107,43,.85); color: #fff; }
+.badge-hackathon{ background: rgba(124,92,239,.85); color: #fff; }
+.event-date-badge {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(10,15,30,.85); border: 1px solid var(--border);
+  padding: 6px 10px; border-radius: 8px; text-align: center; backdrop-filter: blur(4px);
+}
+.event-date-badge .day   { font-family: 'Syne',sans-serif; font-weight: 800; font-size: 1.1rem; line-height: 1; }
+.event-date-badge .month { font-size: .65rem; font-weight: 600; color: var(--orange); text-transform: uppercase; letter-spacing: .06em; }
+.event-body { padding: 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.event-college {
+  font-size: .75rem; color: var(--orange); font-weight: 600;
+  letter-spacing: .04em; display: flex; align-items: center; gap: 5px;
+}
+.event-title { font-family: 'Syne',sans-serif; font-weight: 700; font-size: 1.05rem; line-height: 1.3; }
+.event-meta {
+  display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px;
+}
+.meta-item {
+  font-size: .78rem; color: var(--muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.meta-item svg { width: 13px; height: 13px; flex-shrink: 0; }
+.event-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.register-btn {
+  padding: 8px 20px; background: var(--orange); color: #fff;
+  border: none; border-radius: 8px; font-size: .85rem; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: background .2s, transform .15s;
+}
+.register-btn:hover { background: var(--orange2); transform: translateY(-1px); }
+.seats-left { font-size: .78rem; color: var(--muted); }
+.seats-hot  { color: #FF6B6B; font-weight: 600; }
+
+/* ─── FEATURED STRIP ─── */
+#featured { background: var(--navy2); }
+.featured-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  display: grid; grid-template-columns: 1.2fr 1fr;
+  overflow: hidden; min-height: 320px;
+  transition: transform .3s, box-shadow .3s;
+}
+.featured-card:hover { transform: translateY(-4px); box-shadow: 0 24px 56px rgba(0,0,0,.5); }
+.featured-visual {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #1a0533 0%, #0d1b4b 50%, #0a2e2a 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.featured-pattern {
+  position: absolute; inset: 0; opacity: .15;
+  background-image: repeating-linear-gradient(45deg, var(--orange) 0, var(--orange) 1px, transparent 0, transparent 50%);
+  background-size: 20px 20px;
+}
+.featured-emoji { font-size: 5rem; position: relative; z-index: 1; }
+.featured-info { padding: 36px 32px; display: flex; flex-direction: column; gap: 12px; }
+.featured-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--yellow); }
+.featured-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; line-height: 1.2; }
+.featured-desc  { color: var(--muted); font-size: .92rem; line-height: 1.6; flex: 1; }
+.featured-tags  { display: flex; gap: 8px; flex-wrap: wrap; }
+.f-tag { font-size: .75rem; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--light); }
+.featured-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+
+/* ─── HOW IT WORKS ─── */
+#how { background: var(--navy); }
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.step-card {
+  background: var(--navy3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 22px;
+  position: relative; overflow: hidden;
+  transition: transform .25s, border-color .25s;
+}
+.step-card:hover { transform: translateY(-4px); border-color: rgba(255,107,43,.3); }
+.step-card::before {
+  content: attr(data-step);
+  position: absolute; top: -14px; right: 16px;
+  font-family: 'Syne', sans-serif; font-size: 5rem; font-weight: 800;
+  color: rgba(255,255,255,.04); line-height: 1;
+}
+.step-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 16px;
+}
+.step-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; }
+.step-desc  { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+
+/* ─── STATE GRID ─── */
+#states { background: var(--navy2); }
+.state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+.state-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all .2s;
+}
+.state-card:hover { border-color: var(--orange); background: rgba(255,107,43,.06); transform: translateY(-2px); }
+.state-flag { font-size: 1.6rem; }
+.state-name { font-weight: 600; font-size: .9rem; }
+.state-count { font-size: .75rem; color: var(--muted); }
+
+/* ─── COLLEGES SECTION ─── */
+#colleges { background: var(--navy); }
+.college-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.college-card {
+  background: var(--navy3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer; transition: all .2s;
+}
+.college-card:hover { border-color: var(--teal); transform: translateX(4px); }
+.college-avatar {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-family: 'Syne', sans-serif; font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.college-info .name  { font-weight: 600; font-size: .95rem; margin-bottom: 4px; }
+.college-info .meta  { font-size: .78rem; color: var(--muted); }
+.college-info .events-count { font-size: .78rem; color: var(--teal); margin-top: 4px; font-weight: 600; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px); z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--navy3); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px; width: 100%; max-width: 520px;
+  padding: 36px; transform: scale(.95); transition: transform .25s;
+  position: relative; max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,.07); border: none; border-radius: 8px;
+  width: 32px; height: 32px; cursor: pointer; color: var(--muted); font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center; transition: background .2s;
+}
+.modal-close:hover { background: rgba(255,255,255,.12); }
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 6px; }
+.modal-college { color: var(--orange); font-size: .85rem; font-weight: 600; margin-bottom: 20px; }
+.modal-section { margin-bottom: 20px; }
+.modal-section-label { font-size: .72rem; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.modal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.detail-box { background: rgba(255,255,255,.04); border-radius: 10px; padding: 14px; }
+.detail-box .label { font-size: .72rem; color: var(--muted); margin-bottom: 4px; }
+.detail-box .value { font-weight: 600; font-size: .95rem; }
+.form-row { margin-bottom: 16px; }
+.form-label { font-size: .78rem; font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 7px; display: block; }
+.form-input {
+  width: 100%; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+  padding: 12px 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: .95rem; transition: border-color .2s;
+}
+.form-input:focus { outline: none; border-color: var(--orange); }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.register-full {
+  width: 100%; padding: 14px; background: var(--orange); color: #fff;
+  border: none; border-radius: 12px; font-size: 1rem; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 8px;
+  transition: background .2s, transform .15s;
+}
+.register-full:hover { background: var(--orange2); transform: translateY(-1px); }
+.success-message {
+  text-align: center; padding: 24px 0;
+  display: none;
+}
+.success-icon { font-size: 3rem; margin-bottom: 12px; }
+.success-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--teal); margin-bottom: 8px; }
+.success-sub   { color: var(--muted); font-size: .92rem; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--navy2); border-top: 1px solid var(--border);
+  padding: 60px 5% 32px;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+.footer-brand p { color: var(--muted); font-size: .9rem; margin-top: 14px; line-height: 1.7; max-width: 280px; }
+.footer-col h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; margin-bottom: 16px; }
+.footer-col a  { display: block; color: var(--muted); text-decoration: none; font-size: .88rem; margin-bottom: 10px; transition: color .2s; }
+.footer-col a:hover { color: var(--text); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+.footer-bottom p { color: var(--muted); font-size: .83rem; }
+.footer-socials { display: flex; gap: 12px; }
+.social-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+  cursor: pointer; transition: background .2s; color: var(--muted); text-decoration: none;
+}
+.social-btn:hover { background: rgba(255,255,255,.1); color: var(--text); }
+
+/* ─── NOTIFICATION TOAST ─── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--navy3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.4);
+  transform: translateY(80px); opacity: 0;
+  transition: all .4s cubic-bezier(.34,1.56,.64,1);
+  z-index: 200; max-width: 340px;
+}
+.toast.show { transform: none; opacity: 1; }
+.toast-icon { font-size: 1.2rem; }
+.toast-text .t { font-weight: 600; font-size: .9rem; }
+.toast-text .s { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+/* ─── SCROLL ANIMATIONS ─── */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity .6s, transform .6s; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px) {
+  .search-row { grid-template-columns: 1fr 1fr; }
+  .search-row .search-btn { grid-column: span 2; }
+  .steps-grid { grid-template-columns: 1fr 1fr; }
+  .featured-row { grid-template-columns: 1fr; }
+  .featured-card { grid-template-columns: 1fr; }
+  .featured-visual { height: 180px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:600px) {
+  .nav-links { display: none; }
+  .search-row { grid-template-columns: 1fr; }
+  .search-row .search-btn { grid-column: span 1; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .stats-bar { flex-direction: column; }
+  .stat { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat:last-child { border-bottom: none; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .modal-details { grid-template-columns: 1fr; }
+  .form-row-2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#" class="logo">
+    <span class="logo-dot"></span>
+    CampusConnect
+    <span class="nav-tag">BETA</span>
+  </a>
+  <div class="nav-links">
+    <a href="#events">Events</a>
+    <a href="#featured">Featured</a>
+    <a href="#states">By State</a>
+    <a href="#colleges">Colleges</a>
+    <a href="#how">How it works</a>
+  </div>
+  <a href="#" class="nav-cta" onclick="showToast('🎓','Create account','Post and manage your college events')">Post Event</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-badge">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    India's First Cross-College Event Platform
+  </div>
+  <h1>Discover <span>events</span> from<br/><em>every college</em> near you</h1>
+  <p class="hero-sub">Search fests, hackathons, workshops, and cultural events across colleges — filter by state, city, or college name. Never miss an event again.</p>
+
+  <div class="search-card">
+    <div class="search-row">
+      <div>
+        <div class="field-label">Event / College</div>
+        <input class="search-input" id="searchMain" placeholder="e.g. Techfest, IIT Bombay…" oninput="filterEvents()"/>
+      </div>
+      <div>
+        <div class="field-label">State</div>
+        <select class="search-input" id="filterState" onchange="filterEvents()">
+          <option value="">All States</option>
+          <option>Maharashtra</option>
+          <option>Karnataka</option>
+          <option>Tamil Nadu</option>
+          <option>Delhi</option>
+          <option>West Bengal</option>
+          <option>Telangana</option>
+          <option>Gujarat</option>
+          <option>Rajasthan</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">City</div>
+        <select class="search-input" id="filterCity" onchange="filterEvents()">
+          <option value="">All Cities</option>
+          <option>Mumbai</option>
+          <option>Bangalore</option>
+          <option>Chennai</option>
+          <option>Delhi</option>
+          <option>Kolkata</option>
+          <option>Hyderabad</option>
+          <option>Pune</option>
+          <option>Ahmedabad</option>
+          <option>Jaipur</option>
+        </select>
+      </div>
+      <button class="search-btn" onclick="filterEvents()">Search</button>
+    </div>
+    <div class="search-tags">
+      <span>Popular:</span>
+      <span class="tag-chip" onclick="quickSearch('Hackathon')">Hackathon</span>
+      <span class="tag-chip" onclick="quickSearch('Techfest')">Techfest</span>
+      <span class="tag-chip" onclick="quickSearch('Cultural')">Cultural Fest</span>
+      <span class="tag-chip" onclick="quickSearch('Workshop')">Workshop</span>
+      <span class="tag-chip" onclick="quickSearch('IIT')">IIT Events</span>
+      <span class="tag-chip" onclick="quickSearch('NIT')">NIT Events</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="cnt-events">1,240+</div><div class="stat-label">Active Events</div></div>
+    <div class="stat"><div class="stat-num">380+</div><div class="stat-label">Colleges Listed</div></div>
+    <div class="stat"><div class="stat-num">28</div><div class="stat-label">States Covered</div></div>
+    <div class="stat"><div class="stat-num">52K+</div><div class="stat-label">Registrations</div></div>
+  </div>
+</section>
+
+<!-- EVENTS SECTION -->
+<section id="events">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Browse Events</div>
+    <h2 class="section-title">Upcoming events across India</h2>
+    <p class="section-sub">Updated daily from 380+ colleges</p>
+  </div>
+  <div class="filter-bar reveal">
+    <button class="filter-chip active" onclick="setCategory(this,'all')">All Events</button>
+    <button class="filter-chip cat-tech" onclick="setCategory(this,'tech')">Tech &amp; Coding</button>
+    <button class="filter-chip cat-cultural" onclick="setCategory(this,'cultural')">Cultural</button>
+    <button class="filter-chip cat-sports" onclick="setCategory(this,'sports')">Sports</button>
+    <button class="filter-chip cat-business" onclick="setCategory(this,'business')">Business</button>
+    <button class="filter-chip" onclick="setCategory(this,'workshop')">Workshops</button>
+    <div class="filter-right">
+      <select class="sort-select" onchange="sortEvents(this.value)">
+        <option value="date">Sort: Date</option>
+        <option value="seats">Sort: Seats Available</option>
+        <option value="college">Sort: College Name</option>
+      </select>
+    </div>
+  </div>
+  <div class="event-grid reveal" id="eventGrid"></div>
+</section>
+
+<!-- FEATURED SECTION -->
+<section id="featured">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Spotlight</div>
+    <h2 class="section-title">Featured events this month</h2>
+  </div>
+  <div class="featured-row reveal" id="featuredGrid"></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Platform Guide</div>
+    <h2 class="section-title">How CampusConnect works</h2>
+  </div>
+  <div class="steps-grid reveal">
+    <div class="step-card" data-step="01">
+      <div class="step-icon" style="background:rgba(255,107,43,.12)">🔍</div>
+      <div class="step-title">Search &amp; Filter</div>
+      <div class="step-desc">Search by event name, college, city, or state. Filter by category — tech, cultural, sports, business.</div>
+    </div>
+    <div class="step-card" data-step="02">
+      <div class="step-icon" style="background:rgba(0,212,170,.12)">📋</div>
+      <div class="step-title">Explore Details</div>
+      <div class="step-desc">View full event info — dates, venue, prizes, team size, eligibility, and registration deadline.</div>
+    </div>
+    <div class="step-card" data-step="03">
+      <div class="step-icon" style="background:rgba(124,92,239,.12)">✅</div>
+      <div class="step-title">Register Instantly</div>
+      <div class="step-desc">Register with your student ID. Get a confirmation email and add to calendar with one click.</div>
+    </div>
+    <div class="step-card" data-step="04">
+      <div class="step-icon" style="background:rgba(255,209,102,.12)">🔔</div>
+      <div class="step-title">Get Reminders</div>
+      <div class="step-desc">Auto-reminders 7 days, 1 day, and 2 hours before the event so you never miss it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATES SECTION -->
+<section id="states">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Browse by Location</div>
+    <h2 class="section-title">Events in your state</h2>
+  </div>
+  <div class="state-grid reveal" id="stateGrid"></div>
+</section>
+
+<!-- COLLEGES SECTION -->
+<section id="colleges">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Partner Institutions</div>
+    <h2 class="section-title">Active colleges on platform</h2>
+  </div>
+  <div class="college-list reveal" id="collegeList"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><span class="logo-dot"></span> CampusConnect</div>
+      <p>India's cross-college event discovery platform. Find fests, hackathons, workshops, and more from 380+ colleges across 28 states.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <a href="#">Browse Events</a>
+      <a href="#">Featured</a>
+      <a href="#">By State</a>
+      <a href="#">By College</a>
+      <a href="#">Calendar</a>
+    </div>
+    <div class="footer-col">
+      <h4>For Colleges</h4>
+      <a href="#">Post an Event</a>
+      <a href="#">College Admin Panel</a>
+      <a href="#">Verification</a>
+      <a href="#">Analytics</a>
+      <a href="#">Pricing</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 CampusConnect. Built for Indian students.</p>
+    <div class="footer-socials">
+      <a class="social-btn" href="#">𝕏</a>
+      <a class="social-btn" href="#">in</a>
+      <a class="social-btn" href="#">▶</a>
+      <a class="social-btn" href="#">📸</a>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon"></span>
+  <div class="toast-text">
+    <div class="t" id="toastTitle"></div>
+    <div class="s" id="toastSub"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+const EVENTS = [
+  { id:1, title:"Techfest 2025", college:"IIT Bombay", city:"Mumbai", state:"Maharashtra", category:"tech", date:"12 Apr", month:"APR", day:"12", banner:"🚀", color:"#1a0533", seats:340, totalSeats:500, prize:"₹10L", type:"Fest", desc:"Asia's largest science & technology festival with 18,000+ participants from 56 countries." },
+  { id:2, title:"Shaastra", college:"IIT Madras", city:"Chennai", state:"Tamil Nadu", category:"tech", date:"18 Apr", month:"APR", day:"18", banner:"⚡", color:"#0a1f3a", seats:210, totalSeats:400, prize:"₹8L", type:"Fest", desc:"Annual technical symposium with robotics, coding competitions, and guest lectures." },
+  { id:3, title:"Spring Spree", college:"IIT Kharagpur", city:"Kharagpur", state:"West Bengal", category:"cultural", date:"22 Apr", month:"APR", day:"22", banner:"🎭", color:"#1f0a1a", seats:650, totalSeats:1000, prize:"₹3L", type:"Cultural", desc:"The biggest cultural festival of Eastern India spanning 4 days of music, dance, and drama." },
+  { id:4, title:"Mood Indigo", college:"IIT Bombay", city:"Mumbai", state:"Maharashtra", category:"cultural", date:"8 May", month:"MAY", day:"8", banner:"🎵", color:"#1a1a00", seats:120, totalSeats:800, prize:"₹5L", type:"Cultural", desc:"Asia's largest college cultural festival with 100,000+ footfall every year." },
+  { id:5, title:"Smart India Hackathon", college:"NIT Trichy", city:"Tiruchirappalli", state:"Tamil Nadu", category:"tech", date:"14 Apr", month:"APR", day:"14", banner:"💻", color:"#001a0f", seats:80, totalSeats:200, prize:"₹1L", type:"Hackathon", desc:"36-hour hackathon to solve real government and industry problems using technology." },
+  { id:6, title:"Entrepreneurship Summit", college:"IIM Ahmedabad", city:"Ahmedabad", state:"Gujarat", category:"business", date:"20 Apr", month:"APR", day:"20", banner:"💼", color:"#1a1000", seats:295, totalSeats:350, prize:"₹2L", type:"Summit", desc:"India's premier student entrepreneurship summit with 80+ speakers and startup showcase." },
+  { id:7, title:"Kurukshetra", college:"Anna University", city:"Chennai", state:"Tamil Nadu", category:"tech", date:"3 May", month:"MAY", day:"3", banner:"🔬", color:"#001523", seats:400, totalSeats:600, prize:"₹6L", type:"Fest", desc:"National-level technical symposium covering AI, IoT, robotics, and sustainable engineering." },
+  { id:8, title:"Antaragni", college:"IIT Kanpur", city:"Kanpur", state:"Uttar Pradesh", category:"cultural", date:"10 May", month:"MAY", day:"10", banner:"🎪", color:"#1a0a00", seats:50, totalSeats:600, prize:"₹4L", type:"Cultural", desc:"The biggest cultural festival of North India — music, film, street plays, and fashion." },
+  { id:9, title:"Cricket Premier League", college:"VIT Vellore", city:"Vellore", state:"Tamil Nadu", category:"sports", date:"25 Apr", month:"APR", day:"25", banner:"🏏", color:"#001a0a", seats:200, totalSeats:400, prize:"₹50K", type:"Sports", desc:"Inter-college T20 cricket tournament with 32 college teams competing across 5 days." },
+  { id:10, title:"UI/UX Design Workshop", college:"NIFT Delhi", city:"Delhi", state:"Delhi", category:"workshop", date:"16 Apr", month:"APR", day:"16", banner:"🎨", color:"#150020", seats:35, totalSeats:80, prize:"Certificate", type:"Workshop", desc:"Hands-on 2-day workshop on Figma, design thinking, and building user-centric products." },
+  { id:11, title:"Finance Conclave", college:"SRCC Delhi", city:"Delhi", state:"Delhi", category:"business", date:"27 Apr", month:"APR", day:"27", banner:"📈", color:"#0a1500", seats:160, totalSeats:250, prize:"₹75K", type:"Conclave", desc:"Annual finance summit with top analysts, portfolio managers, and fintech founders." },
+  { id:12, title:"Zephyr", college:"BITS Pilani", city:"Pilani", state:"Rajasthan", category:"cultural", date:"2 May", month:"MAY", day:"2", banner:"🌬️", color:"#001015", seats:500, totalSeats:700, prize:"₹3L", type:"Cultural", desc:"BITS Pilani's annual cultural extravaganza with music concerts, quiz, and art exhibitions." },
+];
+
+const FEATURED = [
+  { title:"Techfest 2025 — IIT Bombay", desc:"Asia's largest tech festival. 18,000+ participants, 56 countries, ₹10L prize pool. Live coding battles, robotics war, and keynotes from Google & NASA engineers.", emoji:"🚀", tags:["Tech","Coding","Robotics","AI"], label:"MEGA EVENT", date:"April 12–15, 2025", location:"IIT Bombay, Mumbai" },
+  { title:"Mood Indigo — IIT Bombay", desc:"1,00,000+ footfall. 4 days of non-stop music, comedy, dance performances with Bollywood headliners and international DJs.", emoji:"🎵", tags:["Music","Dance","Cultural","Art"], label:"CULTURAL FEST", date:"May 8–11, 2025", location:"IIT Bombay, Mumbai" },
+];
+
+const STATES = [
+  { flag:"🏙️", name:"Maharashtra", events:142, color:"#FF6B2B" },
+  { flag:"🌴", name:"Karnataka", events:118, color:"#00D4AA" },
+  { flag:"🎓", name:"Tamil Nadu", events:203, color:"#7C5CEF" },
+  { flag:"🏛️", name:"Delhi", events:97, color:"#F0507A" },
+  { flag:"⚙️", name:"West Bengal", events:88, color:"#FFD166" },
+  { flag:"💎", name:"Telangana", events:76, color:"#00D4AA" },
+  { flag:"🏔️", name:"Gujarat", events:65, color:"#FF6B2B" },
+  { flag:"🌵", name:"Rajasthan", events:54, color:"#7C5CEF" },
+  { flag:"🌊", name:"Andhra Pradesh", events:49, color:"#F0507A" },
+  { flag:"🍃", name:"Kerala", events:44, color:"#00D4AA" },
+  { flag:"🌾", name:"Punjab", events:38, color:"#FFD166" },
+  { flag:"❄️", name:"Uttarakhand", events:29, color:"#FF6B2B" },
+];
+
+const COLLEGES = [
+  { abbr:"IIT", name:"IIT Bombay", loc:"Mumbai, Maharashtra", events:12, color:"#FF6B2B", bg:"rgba(255,107,43,.15)" },
+  { abbr:"IIT", name:"IIT Madras", loc:"Chennai, Tamil Nadu", events:9, color:"#7C5CEF", bg:"rgba(124,92,239,.15)" },
+  { abbr:"NIT", name:"NIT Trichy", loc:"Tiruchirappalli, TN", events:7, color:"#00D4AA", bg:"rgba(0,212,170,.15)" },
+  { abbr:"IIM", name:"IIM Ahmedabad", loc:"Ahmedabad, Gujarat", events:5, color:"#FFD166", bg:"rgba(255,209,102,.15)" },
+  { abbr:"VIT", name:"VIT Vellore", loc:"Vellore, Tamil Nadu", events:11, color:"#F0507A", bg:"rgba(240,80,122,.15)" },
+  { abbr:"BIT", name:"BITS Pilani", loc:"Pilani, Rajasthan", events:8, color:"#FF6B2B", bg:"rgba(255,107,43,.15)" },
+  { abbr:"ANU", name:"Anna University", loc:"Chennai, Tamil Nadu", events:14, color:"#00D4AA", bg:"rgba(0,212,170,.15)" },
+  { abbr:"SRC", name:"SRCC Delhi", loc:"New Delhi, Delhi", events:6, color:"#7C5CEF", bg:"rgba(124,92,239,.15)" },
+];
+
+// ─── RENDER ─────────────────────────────────────────────────
+let activeCategory = 'all';
+let currentEvents = [...EVENTS];
+
+function getBadgeClass(cat) {
+  return { tech:'badge-tech', cultural:'badge-cultural', sports:'badge-sports', business:'badge-business', workshop:'badge-workshop', hackathon:'badge-hackathon' }[cat] || 'badge-tech';
+}
+
+function renderEvents(events) {
+  const grid = document.getElementById('eventGrid');
+  if (!events.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:3rem;margin-bottom:16px">🔍</div><div style="font-size:1.1rem;font-weight:600;color:var(--light)">No events found</div><div style="margin-top:8px">Try a different search or filter</div></div>`;
+    return;
+  }
+  grid.innerHTML = events.map(e => {
+    const seatsPercent = Math.round((e.seats / e.totalSeats) * 100);
+    const seatsHot = e.seats < 100;
+    return `
+    <div class="event-card" onclick="openModal(${e.id})">
+      <div class="event-banner">
+        <div class="event-banner-bg" style="background:linear-gradient(135deg,${e.color} 0%,${e.color}99 100%)"></div>
+        <div class="event-banner-overlay"></div>
+        <span class="event-category-badge ${getBadgeClass(e.category)}">${e.type}</span>
+        <div class="event-date-badge">
+          <div class="day">${e.day}</div>
+          <div class="month">${e.month}</div>
+        </div>
+        <div style="position:relative;z-index:1;padding:14px 18px;font-size:3.5rem;line-height:1">${e.banner}</div>
+      </div>
+      <div class="event-body">
+        <div class="event-college">📍 ${e.college} · ${e.city}</div>
+        <div class="event-title">${e.title}</div>
+        <div class="event-meta">
+          <span class="meta-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${e.date}</span>
+          <span class="meta-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${e.prize}</span>
+          <span class="meta-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>${e.state}</span>
+        </div>
+      </div>
+      <div class="event-footer">
+        <span class="seats-left ${seatsHot ? 'seats-hot' : ''}">${seatsHot ? '🔥 ' : ''}${e.seats} seats left</span>
+        <button class="register-btn" onclick="event.stopPropagation();openModal(${e.id})">Register →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFeatured() {
+  document.getElementById('featuredGrid').innerHTML = FEATURED.map(f => `
+    <div class="featured-card">
+      <div class="featured-visual">
+        <div class="featured-pattern"></div>
+        <div class="featured-emoji">${f.emoji}</div>
+      </div>
+      <div class="featured-info">
+        <div class="featured-label">⭐ ${f.label}</div>
+        <div class="featured-title">${f.title}</div>
+        <div class="featured-desc">${f.desc}</div>
+        <div style="font-size:.8rem;color:var(--muted)">📅 ${f.date} &nbsp;·&nbsp; 📍 ${f.location}</div>
+        <div class="featured-tags">${f.tags.map(t => `<span class="f-tag">${t}</span>`).join('')}</div>
+        <button class="register-btn" style="align-self:flex-start;margin-top:8px" onclick="showToast('✅','Registered!','Check your email for confirmation')">Register Now →</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderStates() {
+  document.getElementById('stateGrid').innerHTML = STATES.map(s => `
+    <div class="state-card" onclick="filterByState('${s.name}')">
+      <span class="state-flag">${s.flag}</span>
+      <div>
+        <div class="state-name">${s.name}</div>
+        <div class="state-count" style="color:${s.color}">${s.events} events</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderColleges() {
+  document.getElementById('collegeList').innerHTML = COLLEGES.map(c => `
+    <div class="college-card" onclick="filterByCollege('${c.name}')">
+      <div class="college-avatar" style="background:${c.bg};color:${c.color}">${c.abbr}</div>
+      <div class="college-info">
+        <div class="name">${c.name}</div>
+        <div class="meta">${c.loc}</div>
+        <div class="events-count">${c.events} upcoming events →</div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── FILTERS ────────────────────────────────────────────────
+function filterEvents() {
+  const q     = document.getElementById('searchMain').value.toLowerCase();
+  const state = document.getElementById('filterState').value;
+  const city  = document.getElementById('filterCity').value;
+  currentEvents = EVENTS.filter(e =>
+    (!q     || e.title.toLowerCase().includes(q) || e.college.toLowerCase().includes(q) || e.type.toLowerCase().includes(q)) &&
+    (!state || e.state === state) &&
+    (!city  || e.city  === city)  &&
+    (activeCategory === 'all' || e.category === activeCategory)
+  );
+  renderEvents(currentEvents);
+  document.getElementById('events').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function setCategory(btn, cat) {
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCategory = cat;
+  filterEvents();
+}
+
+function quickSearch(term) {
+  document.getElementById('searchMain').value = term;
+  filterEvents();
+}
+
+function filterByState(state) {
+  document.getElementById('filterState').value = state;
+  filterEvents();
+}
+
+function filterByCollege(college) {
+  document.getElementById('searchMain').value = college;
+  filterEvents();
+}
+
+function sortEvents(by) {
+  if (by === 'date')    currentEvents.sort((a,b) => parseInt(a.day)-parseInt(b.day));
+  if (by === 'seats')   currentEvents.sort((a,b) => b.seats-a.seats);
+  if (by === 'college') currentEvents.sort((a,b) => a.college.localeCompare(b.college));
+  renderEvents(currentEvents);
+}
+
+// ─── MODAL ──────────────────────────────────────────────────
+function openModal(id) {
+  const e = EVENTS.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-title">${e.title}</div>
+    <div class="modal-college">📍 ${e.college} · ${e.city}, ${e.state}</div>
+    <div class="modal-section">
+      <div class="modal-section-label">About this event</div>
+      <p style="color:var(--muted);font-size:.93rem;line-height:1.7">${e.desc}</p>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">Event Details</div>
+      <div class="modal-details">
+        <div class="detail-box"><div class="label">Date</div><div class="value">${e.date}, 2025</div></div>
+        <div class="detail-box"><div class="label">Prize Pool</div><div class="value" style="color:var(--yellow)">${e.prize}</div></div>
+        <div class="detail-box"><div class="label">Category</div><div class="value">${e.type}</div></div>
+        <div class="detail-box"><div class="label">Seats Left</div><div class="value" style="color:${e.seats<100?'#FF6B6B':'var(--teal)'}">${e.seats} / ${e.totalSeats}</div></div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-label">Register</div>
+      <div id="regForm">
+        <div class="form-row-2">
+          <div class="form-row">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" placeholder="Your name" id="regName"/>
+          </div>
+          <div class="form-row">
+            <label class="form-label">College Name</label>
+            <input class="form-input" placeholder="Your college" id="regCollege"/>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="you@college.edu" id="regEmail"/>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Phone</label>
+            <input class="form-input" placeholder="10-digit number" id="regPhone"/>
+          </div>
+        </div>
+        <button class="register-full" onclick="submitReg('${e.title}')">Confirm Registration →</button>
+      </div>
+      <div class="success-message" id="successMsg">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">You're Registered!</div>
+        <div class="success-sub">Confirmation sent to your email. You'll get a reminder 24 hours before the event.</div>
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function submitReg(title) {
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  if (!name || !email) { showToast('⚠️','Missing fields','Please fill name and email'); return; }
+  document.getElementById('regForm').style.display = 'none';
+  document.getElementById('successMsg').style.display = 'block';
+  showToast('🎉','Registered!',`See you at ${title}!`);
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── TOAST ──────────────────────────────────────────────────
+let toastTimer;
+function showToast(icon, title, sub) {
+  clearTimeout(toastTimer);
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastSub').textContent = sub;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── SCROLL REVEAL ──────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── INIT ────────────────────────────────────────────────────
+renderEvents(EVENTS);
+renderFeatured();
+renderStates();
+renderColleges();
+</script>
+</body>
+</html>
